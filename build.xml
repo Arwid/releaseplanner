@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+
+<project name="releaseplanner" default="all">
+    <property name="src.dir"        value="."/>
+    <property name="build.dir"      value="."/>
+    <property name="lib.dir"        value="."/>
+    <property name="javadoc.dir"    value="doc"/>
+    <property name="javadoc.title"  value="Release Planner"/>
+    <property name="javadoc.header" value="Release Planner"/>
+	<property name="reports" location="reports"/>
+	
+    <property environment="ENV"/>
+    <property name="debugger"
+              value="${ENV.DEBUGHOME}/bin/bugseeker2.sh"/>
+
+    <path id="class.path">
+        <pathelement location="${build.dir}"/>
+        <pathelement path="${java.class.path}"/>
+    </path>
+
+    <target name="all" depends="compile,javadoc"/>
+
+    <target name="compile" description="Compile Java code">
+        <javac srcdir="${src.dir}"
+               destdir="${build.dir}"
+               debug="on"
+               classpathref="class.path"
+        />
+    </target>
+
+    <target name="javadoc" description="Generate Javadoc">
+        <mkdir dir="${javadoc.dir}"/>
+        <javadoc packagenames="plan.*"
+                 sourcepath="${src.dir}"
+                 destdir="${javadoc.dir}"
+                 use="true"
+		 private="true"
+                 overview="overview.html"
+                 header="${javadoc.header}"
+                 windowtitle="${javadoc.title}"
+                 doctitle="${javadoc.title}"
+        />
+    </target>
+
+    <target name="clean" description="Clean up">
+        <delete dir="${javadoc.dir}"/>
+        <delete>
+            <fileset dir="${build.dir}" includes="**/*.class"/>
+        </delete>
+    </target>
+
+    <target name="debug" if="debugproj" description="Debug with Bugseeker">
+        <property name="class.path" refid="class.path"/>
+        <exec executable="${debugger}">
+            <env key="CLASSPATH" value="${class.path}"/>
+            <arg file="${debugproj}"/>
+        </exec>
+    </target>
+
+    <target name="runp" description="Run with planetaria.xml">
+        <java classname="plan.Plan"
+              classpathref="class.path"
+              fork="yes">
+	    <arg value="planetaria.xml"/>
+	    <arg value="Planetaria"/>
+	    <arg value="50"/>
+        </java>
+    </target>
+
+    <target name="runr" description="Run with random.xml">
+        <java classname="plan.Plan"
+              classpathref="class.path"
+              fork="yes">
+	    <arg value="random.xml"/>
+	    <arg value="S2"/>
+	    <arg value="340"/>
+        </java>
+    </target>
+	
+	<target name="run-tests" depends="compile" description="run your test suite" >
+			<junit printsummary="yes" haltonfailure="yes" showoutput="yes" >
+				<classpath>
+					<pathelement path="${build}"/>
+					<fileset dir="lib">
+						<include name="**/*.jar"/>
+					</fileset>
+				</classpath>
+	 		  <batchtest fork="yes" todir="${reports}/raw/">
+			  	<formatter type="xml"/>
+			    <fileset dir="${src.dir}">
+			      <include name="**/*Test*.java"/>
+			    </fileset>
+			  </batchtest>
+			</junit>
+		</target>
+
+		<target name ="test" depends="run-tests">
+			<junitreport todir="${reports}">
+			  <fileset dir="${reports}/raw/">
+			    <include name="TEST-*.xml"/>
+			  </fileset>
+			  <report format="frames" todir="${reports}\html\"/>
+			</junitreport>
+		</target>
+	
+</project>
