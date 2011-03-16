@@ -1,0 +1,14 @@
+= releaseplanner
+
+author:: Arwid Bancewicz http://arwid.ca
+version:: 1.2
+updated:: 19 Oct 2009
+
+The goal of the project is to help a company better plan future software releases by providing a suggested list of features that just fits supplied resourcing.
+
+The program is executed as follows:
+  java plan.Plan <feature_file.xml> <product_name> <person_days_available>
+
+= License
+
+releaseplanner is covered by the MIT License.
